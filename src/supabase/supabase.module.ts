@@ -1,0 +1,25 @@
+import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { createClient } from '@supabase/supabase-js';
+import { SupabaseClient } from './classes/supabase-client';
+
+const supabase = {
+  provide: SupabaseClient,
+  useFactory: (config: ConfigService): SupabaseClient => ({
+    anon: createClient(
+      config.get('SUPABASE_URL'),
+      config.get('SUPABASE_PUBLIC_KEY'),
+    ),
+    service: createClient(
+      config.get('SUPABASE_URL'),
+      config.get('SUPABASE_SECRET_KEY'),
+    ),
+  }),
+  inject: [ConfigService],
+};
+
+@Module({
+  providers: [supabase],
+  exports: [supabase],
+})
+export class SupabaseModule {}
