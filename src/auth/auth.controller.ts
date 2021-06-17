@@ -11,12 +11,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { CredentialsDto } from './dto/credentials.dto';
 import { ResetPasswordByEmailDto } from './dto/reset-password-by-email.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import * as JwtUtils from './utils/jwt.utils';
 
 @ApiTags('authentication')
 @Controller('auth')
@@ -45,6 +47,21 @@ export class AuthController {
       throw new BadRequestException(undefined, error.message);
     }
     throw new InternalServerErrorException();
+  }
+
+  @Post('sign-out')
+  @UseGuards(JwtAuthGuard)
+  async signOut(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const token = JwtUtils.extractFromRequest(req);
+    const { error } = await this.auth.signOut(token);
+    if (error) {
+      throw new InternalServerErrorException();
+    }
+    res.clearCookie('accessToken');
+    return { message: 'User signed out.' };
   }
 
   @Post('reset-password-by-email')

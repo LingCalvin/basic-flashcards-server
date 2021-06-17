@@ -14,6 +14,14 @@ const supabase = {
       config.get('SUPABASE_URL'),
       config.get('SUPABASE_SECRET_KEY'),
     ),
+    asUser: (token: string) => {
+      const client = createClient(
+        config.get('SUPABASE_URL'),
+        config.get('SUPABASE_PUBLIC_KEY'),
+      );
+      client.auth.setAuth(token);
+      return client;
+    },
   }),
   inject: [ConfigService],
 };

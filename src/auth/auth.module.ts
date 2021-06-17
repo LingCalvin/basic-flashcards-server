@@ -5,10 +5,21 @@ import { SupabaseModule } from 'src/supabase/supabase.module';
 import { AnonymousAuthGuard } from './guards/anonymous-auth.guard';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
+import { JwtModule } from '@nestjs/jwt';
+import { CleanupService } from './cleanup.service';
 
 @Module({
-  imports: [SupabaseModule],
-  providers: [AnonymousAuthGuard, AuthService, JwtStrategy, LocalStrategy],
+  imports: [
+    JwtModule.register({ secret: process.env.JWT_SECRET }),
+    SupabaseModule,
+  ],
+  providers: [
+    AnonymousAuthGuard,
+    AuthService,
+    CleanupService,
+    JwtStrategy,
+    LocalStrategy,
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}

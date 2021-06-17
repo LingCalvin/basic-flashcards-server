@@ -14,7 +14,7 @@ module.exports = {
     node: true,
     jest: true,
   },
-  ignorePatterns: ['.eslintrc.js'],
+  ignorePatterns: ['.eslintrc.js', 'src/supabase/interfaces/supabase.ts'],
   rules: {
     'tsdoc/syntax': 'warn',
     '@typescript-eslint/interface-name-prefix': 'off',
