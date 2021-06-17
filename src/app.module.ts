@@ -9,7 +9,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 @Module({
   imports: [
     AuthModule,
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot(),
     SupabaseModule,
     ScheduleModule.forRoot(),
   ],
