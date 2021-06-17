@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { createClient } from '@supabase/supabase-js';
 import { SupabaseClient } from './classes/supabase-client';
 
@@ -27,7 +27,8 @@ const supabase = {
 };
 
 @Module({
-  providers: [supabase],
+  imports: [ConfigModule],
   exports: [supabase],
+  providers: [supabase],
 })
 export class SupabaseModule {}

@@ -1,0 +1,26 @@
+name: Lint and test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      JWT_SECRET: JWT_SECRET
+      SUPABASE_PUBLIC_KEY: SUPABASE_PUBLIC_KEY
+      SUPABASE_SECRET_KEY: SUPABASE_SECRET_KEY
+      SUPABASE_URL: SUPABASE_URL
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+      - run: npm test

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { SupabaseClient } from 'src/supabase/classes/supabase-client';
-import { definitions } from 'src/supabase/interfaces/supabase';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { SupabaseClient } from '../supabase/classes/supabase-client';
+import { definitions } from '../supabase/interfaces/supabase';
 
 @Injectable()
 export class CleanupService {

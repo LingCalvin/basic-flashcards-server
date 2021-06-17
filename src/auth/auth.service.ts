@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { SupabaseClient } from 'src/supabase/classes/supabase-client';
 import * as argon2 from 'argon2';
-import { definitions } from 'src/supabase/interfaces/supabase';
 import { JwtService } from '@nestjs/jwt';
+import { SupabaseClient } from '../supabase/classes/supabase-client';
+import { definitions } from '../supabase/interfaces/supabase';
 
 @Injectable()
 export class AuthService {
