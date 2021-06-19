@@ -41,7 +41,7 @@ export class ProfilesController {
       throw new UnauthorizedException();
     }
 
-    const { data, status } = await this.profiles.create(dto);
+    const { data, status } = await this.profiles.create(dto, req.user.token);
 
     if (status === 201) {
       return stripUpdatedAt(data[0]);
@@ -90,13 +90,17 @@ export class ProfilesController {
       throw new UnauthorizedException();
     }
 
-    const { data, error, status } = await this.profiles.update(id, dto);
+    const { data, status } = await this.profiles.update(
+      id,
+      dto,
+      req.user.token,
+    );
 
     if (status === 200) {
-      return data;
+      return stripUpdatedAt(data[0]);
     }
 
-    if (error.code === '23503') {
+    if (status === 404) {
       throw new NotFoundException();
     }
 

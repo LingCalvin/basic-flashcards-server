@@ -10,17 +10,14 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 export class ProfilesService {
   constructor(@Inject(SupabaseClient) private supabase: SupabaseClient) {}
 
-  private get qbAnon() {
-    return this.supabase.anon.from<definitions['profiles']>('profiles');
+  private queryAsAnon(token?: string) {
+    return (token ? this.supabase.asUser(token) : this.supabase.anon).from<
+      definitions['profiles']
+    >('profiles');
   }
 
-  private get qbService() {
-    return this.supabase.service.from<definitions['profiles']>('profiles');
-  }
-
-  create({ userId: id, ...rest }: CreateProfileDto) {
-    this.qbAnon.select(undefined).match({ id });
-    return this.qbService.insert({ id, ...rest });
+  create({ userId: id, ...rest }: CreateProfileDto, token: string) {
+    return this.queryAsAnon(token).insert({ id, ...rest });
   }
 
   async findAll({
@@ -32,7 +29,7 @@ export class ProfilesService {
     sort,
     orderBy,
   }: FindAllProfilesDto) {
-    const query = this.qbAnon
+    const query = this.queryAsAnon()
       .select(undefined, { count: 'exact' })
       .order(orderBy, { ascending: sort === 'asc' })
       .range(offset, offset + limit - 1);
@@ -57,14 +54,14 @@ export class ProfilesService {
   }
 
   findOne(id: string) {
-    return this.qbAnon.select(undefined).match({ id });
+    return this.queryAsAnon().select(undefined).match({ id });
   }
 
-  update(id: string, dto: UpdateProfileDto) {
-    return this.qbService.update({ id, ...dto });
+  update(id: string, dto: UpdateProfileDto, token: string) {
+    return this.queryAsAnon(token).update({ id, ...dto });
   }
 
-  delete(id: string) {
-    return this.qbService.delete().match({ id });
+  delete(id: string, token: string) {
+    return this.queryAsAnon(token).delete().match({ id });
   }
 }
