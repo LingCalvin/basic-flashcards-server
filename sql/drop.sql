@@ -1,0 +1,6 @@
+DROP TABLE IF EXISTS profiles;
+DROP TABLE IF EXISTS revoked_tokens;
+DROP TABLE IF EXISTS cards;
+DROP TABLE IF EXISTS decks;
+
+DROP TYPE IF EXISTS deck_visibility;
