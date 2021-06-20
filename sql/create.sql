@@ -56,7 +56,6 @@ ALTER TABLE decks ENABLE ROW LEVEL SECURITY;
 CREATE POLICY deck_select_public ON decks
   FOR SELECT
   USING (visibility = 'public');
-
 CREATE POLICY deck_crud_own on decks
   USING (auth.uid() = id);
 
@@ -73,3 +72,5 @@ ALTER TABLE cards ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY card_crud_own ON cards
   USING (auth.uid() = (SELECT author_id FROM decks WHERE deck_id = id));
+CREATE POLICY card_select_public ON cards
+  USING ((SELECT visibility FROM decks WHERE deck_id = id) = 'public')
