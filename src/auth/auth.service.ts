@@ -52,7 +52,8 @@ export class AuthService {
     const matchingRecords = await this.supabase.service
       .from<definitions['revoked_tokens']>('revoked_tokens')
       .select('*')
-      .match({ token: await argon2.hash(token, { type: argon2.argon2id }) });
-    return matchingRecords.data.length > 0;
+      .match({ token: await argon2.hash(token, { type: argon2.argon2id }) })
+      .throwOnError();
+    return (matchingRecords.data?.length ?? 1) > 0;
   }
 }

@@ -11,14 +11,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { CredentialsDto } from './dto/credentials.dto';
 import { ResetPasswordByEmailDto } from './dto/reset-password-by-email.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import * as JwtUtils from './utils/jwt.utils';
+import { AuthenticatedRequest } from './interfaces/authenticated-request';
 
 @ApiTags('authentication')
 @Controller('auth')
@@ -28,7 +28,8 @@ export class AuthController {
   @Post('sign-in')
   @UseGuards(LocalAuthGuard)
   signIn(
-    @Req() req,
+    @Req()
+    req: Request & { user: Pick<AuthenticatedRequest['user'], 'accessToken'> },
     @Res({ passthrough: true }) res: Response,
     @Body() {}: CredentialsDto,
   ) {
@@ -52,10 +53,10 @@ export class AuthController {
   @Post('sign-out')
   @UseGuards(JwtAuthGuard)
   async signOut(
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const token = JwtUtils.extractFromRequest(req);
+    const token = req.user.accessToken;
     const { error } = await this.auth.signOut(token);
     if (error) {
       throw new InternalServerErrorException();
@@ -75,7 +76,7 @@ export class AuthController {
   async resetPassword(@Body() { token, newPassword }: ResetPasswordDto) {
     const { error } = await this.auth.resetPassword(token, newPassword);
     if ((error as any)?.status === 401) {
-      throw new UnauthorizedException(undefined, error.message);
+      throw new UnauthorizedException(undefined, error?.message);
     }
     return { message: 'Password changed' };
   }

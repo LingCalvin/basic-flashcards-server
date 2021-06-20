@@ -20,6 +20,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request';
 import { stripUpdatedAt } from '../common/utils/metadata.utils';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { FindAllProfilesDto } from './dto/find-all-profiles.dto';
@@ -36,14 +37,20 @@ export class ProfilesController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiCookieAuth()
-  async create(@Req() req: any, @Body() dto: CreateProfileDto) {
+  async create(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: CreateProfileDto,
+  ) {
     if (req.user.sub !== dto.userId) {
       throw new UnauthorizedException();
     }
 
-    const { data, status } = await this.profiles.create(dto, req.user.token);
+    const { data, status } = await this.profiles.create(
+      dto,
+      req.user.accessToken,
+    );
 
-    if (status === 201) {
+    if (status === 201 && data !== null) {
       return stripUpdatedAt(data[0]);
     }
 
@@ -62,7 +69,7 @@ export class ProfilesController {
     if (error) {
       throw new InternalServerErrorException();
     }
-    return { data: data.map((profile) => stripUpdatedAt(profile)), count };
+    return { data: data?.map((profile) => stripUpdatedAt(profile)), count };
   }
 
   @Get(':id')
@@ -71,7 +78,7 @@ export class ProfilesController {
     if (error) {
       throw new InternalServerErrorException();
     }
-    if (data.length === 0) {
+    if (!data?.length) {
       throw new NotFoundException();
     }
     return stripUpdatedAt(data[0]);
@@ -82,7 +89,7 @@ export class ProfilesController {
   @ApiBearerAuth()
   @ApiCookieAuth()
   async update(
-    @Req() req: any,
+    @Req() req: AuthenticatedRequest,
     @Param() { id }: ProfileIdDto,
     @Body() dto: UpdateProfileDto,
   ) {
@@ -93,10 +100,10 @@ export class ProfilesController {
     const { data, status } = await this.profiles.update(
       id,
       dto,
-      req.user.token,
+      req.user.accessToken,
     );
 
-    if (status === 200) {
+    if (status === 200 && data !== null) {
       return stripUpdatedAt(data[0]);
     }
 
