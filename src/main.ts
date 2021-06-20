@@ -15,7 +15,7 @@ async function bootstrap() {
   if (process.env.SWAGGER_UI_ENABLE) {
     const swaggerConfig = new DocumentBuilder()
       .setTitle('Basic Flashcards')
-      .setVersion(process.env.npm_package_version)
+      .setVersion(process.env.npm_package_version ?? 'unknown')
       .build();
 
     const swaggerDoc = SwaggerModule.createDocument(app, swaggerConfig);
