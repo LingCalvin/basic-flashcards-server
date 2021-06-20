@@ -12,13 +12,214 @@ export interface paths {
       };
     };
   };
+  '/cards': {
+    get: {
+      parameters: {
+        query: {
+          deck_id?: parameters['rowFilter.cards.deck_id'];
+          position?: parameters['rowFilter.cards.position'];
+          front_text?: parameters['rowFilter.cards.front_text'];
+          back_text?: parameters['rowFilter.cards.back_text'];
+          /** Filtering Columns */
+          select?: parameters['select'];
+          /** Ordering */
+          order?: parameters['order'];
+          /** Limiting and Pagination */
+          offset?: parameters['offset'];
+          /** Limiting and Pagination */
+          limit?: parameters['limit'];
+        };
+        header: {
+          /** Limiting and Pagination */
+          Range?: parameters['range'];
+          /** Limiting and Pagination */
+          'Range-Unit'?: parameters['rangeUnit'];
+          /** Preference */
+          Prefer?: parameters['preferCount'];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions['cards'][];
+        };
+        /** Partial Content */
+        206: unknown;
+      };
+    };
+    post: {
+      parameters: {
+        body: {
+          /** cards */
+          cards?: definitions['cards'];
+        };
+        query: {
+          /** Filtering Columns */
+          select?: parameters['select'];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters['preferReturn'];
+        };
+      };
+      responses: {
+        /** Created */
+        201: unknown;
+      };
+    };
+    delete: {
+      parameters: {
+        query: {
+          deck_id?: parameters['rowFilter.cards.deck_id'];
+          position?: parameters['rowFilter.cards.position'];
+          front_text?: parameters['rowFilter.cards.front_text'];
+          back_text?: parameters['rowFilter.cards.back_text'];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters['preferReturn'];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+    patch: {
+      parameters: {
+        query: {
+          deck_id?: parameters['rowFilter.cards.deck_id'];
+          position?: parameters['rowFilter.cards.position'];
+          front_text?: parameters['rowFilter.cards.front_text'];
+          back_text?: parameters['rowFilter.cards.back_text'];
+        };
+        body: {
+          /** cards */
+          cards?: definitions['cards'];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters['preferReturn'];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+  };
+  '/decks': {
+    get: {
+      parameters: {
+        query: {
+          id?: parameters['rowFilter.decks.id'];
+          author_id?: parameters['rowFilter.decks.author_id'];
+          visibility?: parameters['rowFilter.decks.visibility'];
+          title?: parameters['rowFilter.decks.title'];
+          summary?: parameters['rowFilter.decks.summary'];
+          created_at?: parameters['rowFilter.decks.created_at'];
+          updated_at?: parameters['rowFilter.decks.updated_at'];
+          /** Filtering Columns */
+          select?: parameters['select'];
+          /** Ordering */
+          order?: parameters['order'];
+          /** Limiting and Pagination */
+          offset?: parameters['offset'];
+          /** Limiting and Pagination */
+          limit?: parameters['limit'];
+        };
+        header: {
+          /** Limiting and Pagination */
+          Range?: parameters['range'];
+          /** Limiting and Pagination */
+          'Range-Unit'?: parameters['rangeUnit'];
+          /** Preference */
+          Prefer?: parameters['preferCount'];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions['decks'][];
+        };
+        /** Partial Content */
+        206: unknown;
+      };
+    };
+    post: {
+      parameters: {
+        body: {
+          /** decks */
+          decks?: definitions['decks'];
+        };
+        query: {
+          /** Filtering Columns */
+          select?: parameters['select'];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters['preferReturn'];
+        };
+      };
+      responses: {
+        /** Created */
+        201: unknown;
+      };
+    };
+    delete: {
+      parameters: {
+        query: {
+          id?: parameters['rowFilter.decks.id'];
+          author_id?: parameters['rowFilter.decks.author_id'];
+          visibility?: parameters['rowFilter.decks.visibility'];
+          title?: parameters['rowFilter.decks.title'];
+          summary?: parameters['rowFilter.decks.summary'];
+          created_at?: parameters['rowFilter.decks.created_at'];
+          updated_at?: parameters['rowFilter.decks.updated_at'];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters['preferReturn'];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+    patch: {
+      parameters: {
+        query: {
+          id?: parameters['rowFilter.decks.id'];
+          author_id?: parameters['rowFilter.decks.author_id'];
+          visibility?: parameters['rowFilter.decks.visibility'];
+          title?: parameters['rowFilter.decks.title'];
+          summary?: parameters['rowFilter.decks.summary'];
+          created_at?: parameters['rowFilter.decks.created_at'];
+          updated_at?: parameters['rowFilter.decks.updated_at'];
+        };
+        body: {
+          /** decks */
+          decks?: definitions['decks'];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters['preferReturn'];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+  };
   '/profiles': {
     get: {
       parameters: {
         query: {
           id?: parameters['rowFilter.profiles.id'];
-          updated_at?: parameters['rowFilter.profiles.updated_at'];
           username?: parameters['rowFilter.profiles.username'];
+          updated_at?: parameters['rowFilter.profiles.updated_at'];
           /** Filtering Columns */
           select?: parameters['select'];
           /** Ordering */
@@ -70,8 +271,8 @@ export interface paths {
       parameters: {
         query: {
           id?: parameters['rowFilter.profiles.id'];
-          updated_at?: parameters['rowFilter.profiles.updated_at'];
           username?: parameters['rowFilter.profiles.username'];
+          updated_at?: parameters['rowFilter.profiles.updated_at'];
         };
         header: {
           /** Preference */
@@ -87,8 +288,8 @@ export interface paths {
       parameters: {
         query: {
           id?: parameters['rowFilter.profiles.id'];
-          updated_at?: parameters['rowFilter.profiles.updated_at'];
           username?: parameters['rowFilter.profiles.username'];
+          updated_at?: parameters['rowFilter.profiles.updated_at'];
         };
         body: {
           /** profiles */
@@ -110,7 +311,6 @@ export interface paths {
       parameters: {
         query: {
           token?: parameters['rowFilter.revoked_tokens.token'];
-          /** When the token expires */
           expiration?: parameters['rowFilter.revoked_tokens.expiration'];
           /** Filtering Columns */
           select?: parameters['select'];
@@ -163,7 +363,6 @@ export interface paths {
       parameters: {
         query: {
           token?: parameters['rowFilter.revoked_tokens.token'];
-          /** When the token expires */
           expiration?: parameters['rowFilter.revoked_tokens.expiration'];
         };
         header: {
@@ -180,7 +379,6 @@ export interface paths {
       parameters: {
         query: {
           token?: parameters['rowFilter.revoked_tokens.token'];
-          /** When the token expires */
           expiration?: parameters['rowFilter.revoked_tokens.expiration'];
         };
         body: {
@@ -201,6 +399,38 @@ export interface paths {
 }
 
 export interface definitions {
+  cards: {
+    /**
+     * Note:
+     * This is a Primary Key.<pk/>
+     * This is a Foreign Key to `decks.id`.<fk table='decks' column='id'/>
+     */
+    deck_id: string;
+    /**
+     * Note:
+     * This is a Primary Key.<pk/>
+     */
+    position: number;
+    front_text: string;
+    back_text: string;
+  };
+  decks: {
+    /**
+     * Note:
+     * This is a Primary Key.<pk/>
+     */
+    id: string;
+    /**
+     * Note:
+     * This is a Foreign Key to `users.id`.<fk table='users' column='id'/>
+     */
+    author_id: string;
+    visibility: 'public' | 'private';
+    title: string;
+    summary: string;
+    created_at: string;
+    updated_at: string;
+  };
   profiles: {
     /**
      * Note:
@@ -208,17 +438,11 @@ export interface definitions {
      * This is a Foreign Key to `users.id`.<fk table='users' column='id'/>
      */
     id: string;
-    updated_at?: string;
-    username?: string;
+    username: string;
+    updated_at: string;
   };
-  /** The hashes of tokens that have been revoked */
   revoked_tokens: {
-    /**
-     * Note:
-     * This is a Primary Key.<pk/>
-     */
     token: string;
-    /** When the token expires */
     expiration: string;
   };
 }
@@ -244,15 +468,29 @@ export interface parameters {
   offset: string;
   /** Limiting and Pagination */
   limit: string;
+  /** cards */
+  'body.cards': definitions['cards'];
+  'rowFilter.cards.deck_id': string;
+  'rowFilter.cards.position': string;
+  'rowFilter.cards.front_text': string;
+  'rowFilter.cards.back_text': string;
+  /** decks */
+  'body.decks': definitions['decks'];
+  'rowFilter.decks.id': string;
+  'rowFilter.decks.author_id': string;
+  'rowFilter.decks.visibility': string;
+  'rowFilter.decks.title': string;
+  'rowFilter.decks.summary': string;
+  'rowFilter.decks.created_at': string;
+  'rowFilter.decks.updated_at': string;
   /** profiles */
   'body.profiles': definitions['profiles'];
   'rowFilter.profiles.id': string;
-  'rowFilter.profiles.updated_at': string;
   'rowFilter.profiles.username': string;
+  'rowFilter.profiles.updated_at': string;
   /** revoked_tokens */
   'body.revoked_tokens': definitions['revoked_tokens'];
   'rowFilter.revoked_tokens.token': string;
-  /** When the token expires */
   'rowFilter.revoked_tokens.expiration': string;
 }
 
