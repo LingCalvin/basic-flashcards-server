@@ -10,7 +10,7 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { CredentialsDto } from './dto/credentials.dto';
@@ -26,7 +26,17 @@ export class AuthController {
   constructor(private auth: AuthService) {}
 
   @Post('sign-in')
+  @HttpCode(200)
   @UseGuards(LocalAuthGuard)
+  @ApiOperation({ summary: 'Sign in using email and password' })
+  @ApiResponse({
+    status: 200,
+    description: 'The client has successfully authenticated.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: `The client's attempt to authenticate was unsuccessful.`,
+  })
   signIn(
     @Req()
     req: Request & { user: Pick<AuthenticatedRequest['user'], 'accessToken'> },
@@ -38,6 +48,12 @@ export class AuthController {
   }
 
   @Post('sign-up')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Register a new account' })
+  @ApiResponse({
+    status: 200,
+    description: 'The account was successfully registered.',
+  })
   async signUp(@Body() { email, password }: CredentialsDto) {
     const { error } = await this.auth.signUp(email, password);
 
@@ -51,7 +67,13 @@ export class AuthController {
   }
 
   @Post('sign-out')
+  @HttpCode(200)
   @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Sign out of an account' })
+  @ApiResponse({
+    status: 200,
+    description: 'The client has successfully signed out.',
+  })
   async signOut(
     @Req() req: AuthenticatedRequest,
     @Res({ passthrough: true }) res: Response,
@@ -67,12 +89,25 @@ export class AuthController {
 
   @Post('reset-password-by-email')
   @HttpCode(202)
+  @ApiOperation({ summary: 'Request a password reset for an email' })
+  @ApiResponse({
+    status: 202,
+    description:
+      'The password reset request has been received. If the email belongs to a user, they will recieve instructions on how to reset their password.',
+  })
   async resetPasswordByEmail(@Body() { email }: ResetPasswordByEmailDto) {
     this.auth.resetPasswordByEmail(email);
     return { message: 'Request received.' };
   }
 
   @Post('reset-password')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Reset a password by using a password reset token' })
+  @ApiResponse({
+    status: 200,
+    description: 'The password has been successfully changed',
+  })
+  @ApiResponse({ status: 401, description: 'The provided token was invalid.' })
   async resetPassword(@Body() { token, newPassword }: ResetPasswordDto) {
     const { error } = await this.auth.resetPassword(token, newPassword);
     if ((error as any)?.status === 401) {

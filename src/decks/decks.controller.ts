@@ -14,7 +14,13 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiCookieAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCookieAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import OptionalJwtAuthGuard from '../auth/guards/optional-jwt-auth.guard';
 import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request';
@@ -33,8 +39,23 @@ export class DecksController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Create a deck' })
   @ApiBearerAuth()
   @ApiCookieAuth()
+  @ApiResponse({
+    status: 201,
+    description: 'The deck was successfully created.',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'The client does not have permission to create a deck for the specified author.',
+  })
+  @ApiResponse({
+    status: 409,
+    description:
+      'The attempt to create a deck has failed. A deck with the specified ID already exists.',
+  })
   async create(
     @Req() { user: { accessToken } }: AuthenticatedRequest,
     @Body() dto: CreateDeckDto,
@@ -54,6 +75,11 @@ export class DecksController {
 
   @Get()
   @UseGuards(OptionalJwtAuthGuard)
+  @ApiOperation({ summary: 'Retrieve a list of decks' })
+  @ApiResponse({
+    status: 200,
+    description: 'The query was successful.',
+  })
   async findAll(
     @Req() req: OptionallyAuthenticatedRequest,
     @Query() dto: FindAllDecksDto,
@@ -72,6 +98,15 @@ export class DecksController {
 
   @Get(':id')
   @UseGuards(OptionalJwtAuthGuard)
+  @ApiOperation({ summary: 'Retrieve a deck' })
+  @ApiResponse({
+    status: 200,
+    description: 'The deck specified was found',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'No deck with the given ID was found.',
+  })
   async findOne(
     @Req() req: OptionallyAuthenticatedRequest,
     @Param() { id }: DeckIdDto,
@@ -91,8 +126,22 @@ export class DecksController {
 
   @Put(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update a deck' })
   @ApiBearerAuth()
   @ApiCookieAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'The deck was successfully updated.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: `The attempt to modify the specified deck has failed due to insufficient permissions.`,
+  })
+  @ApiResponse({
+    status: 404,
+    description:
+      'The attempt to modify the specified deck has failed because it could not be found',
+  })
   async update(
     @Req() req: AuthenticatedRequest,
     @Param() { id }: DeckIdDto,
@@ -118,8 +167,22 @@ export class DecksController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Delete a deck' })
   @ApiBearerAuth()
   @ApiCookieAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'The deck was successfully deleted.',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'The attempt to delete the specified deck has failed due to insufficient permissions.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'The specified deck could not be found.',
+  })
   async delete(@Req() req: AuthenticatedRequest, @Param() { id }: DeckIdDto) {
     const { data, status } = await this.decks.delete(id, req.user.accessToken);
 
