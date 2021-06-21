@@ -37,13 +37,15 @@ ALTER TABLE revoked_tokens ENABLE ROW LEVEL SECURITY;
 
 -- Decks
 CREATE TYPE deck_visibility as ENUM ('public', 'private');
+CREATE TYPE card as (front_text TEXT, back_text TEXT);
 
 CREATE TABLE decks (
-  id UUID PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
   author_id UUID REFERENCES auth.users NOT NULL,
   visibility deck_visibility NOT NULL,
   title TEXT NOT NULL,
-  summary TEXT NOT NULL,
+  description TEXT NOT NULL,
+  cards card[] NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
@@ -56,20 +58,5 @@ ALTER TABLE decks ENABLE ROW LEVEL SECURITY;
 CREATE POLICY deck_select_public ON decks
   FOR SELECT
   USING (visibility = 'public');
-
 CREATE POLICY deck_crud_own on decks
-  USING (auth.uid() = id);
-
--- Cards
-CREATE TABLE cards (
-  deck_id UUID REFERENCES decks NOT NULL,
-  position INTEGER NOT NULL,
-  front_text TEXT NOT NULL,
-  back_text TEXT NOT NULL,
-  PRIMARY KEY(deck_id, position)
-);
-
-ALTER TABLE cards ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY card_crud_own ON cards
-  USING (auth.uid() = (SELECT author_id FROM decks WHERE deck_id = id));
+  USING (auth.uid() = author_id);

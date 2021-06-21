@@ -3,108 +3,14 @@
  * Do not make direct changes to the file.
  */
 
+import { Card } from './card.interface';
+
 export interface paths {
   '/': {
     get: {
       responses: {
         /** OK */
         200: unknown;
-      };
-    };
-  };
-  '/cards': {
-    get: {
-      parameters: {
-        query: {
-          deck_id?: parameters['rowFilter.cards.deck_id'];
-          position?: parameters['rowFilter.cards.position'];
-          front_text?: parameters['rowFilter.cards.front_text'];
-          back_text?: parameters['rowFilter.cards.back_text'];
-          /** Filtering Columns */
-          select?: parameters['select'];
-          /** Ordering */
-          order?: parameters['order'];
-          /** Limiting and Pagination */
-          offset?: parameters['offset'];
-          /** Limiting and Pagination */
-          limit?: parameters['limit'];
-        };
-        header: {
-          /** Limiting and Pagination */
-          Range?: parameters['range'];
-          /** Limiting and Pagination */
-          'Range-Unit'?: parameters['rangeUnit'];
-          /** Preference */
-          Prefer?: parameters['preferCount'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          schema: definitions['cards'][];
-        };
-        /** Partial Content */
-        206: unknown;
-      };
-    };
-    post: {
-      parameters: {
-        body: {
-          /** cards */
-          cards?: definitions['cards'];
-        };
-        query: {
-          /** Filtering Columns */
-          select?: parameters['select'];
-        };
-        header: {
-          /** Preference */
-          Prefer?: parameters['preferReturn'];
-        };
-      };
-      responses: {
-        /** Created */
-        201: unknown;
-      };
-    };
-    delete: {
-      parameters: {
-        query: {
-          deck_id?: parameters['rowFilter.cards.deck_id'];
-          position?: parameters['rowFilter.cards.position'];
-          front_text?: parameters['rowFilter.cards.front_text'];
-          back_text?: parameters['rowFilter.cards.back_text'];
-        };
-        header: {
-          /** Preference */
-          Prefer?: parameters['preferReturn'];
-        };
-      };
-      responses: {
-        /** No Content */
-        204: never;
-      };
-    };
-    patch: {
-      parameters: {
-        query: {
-          deck_id?: parameters['rowFilter.cards.deck_id'];
-          position?: parameters['rowFilter.cards.position'];
-          front_text?: parameters['rowFilter.cards.front_text'];
-          back_text?: parameters['rowFilter.cards.back_text'];
-        };
-        body: {
-          /** cards */
-          cards?: definitions['cards'];
-        };
-        header: {
-          /** Preference */
-          Prefer?: parameters['preferReturn'];
-        };
-      };
-      responses: {
-        /** No Content */
-        204: never;
       };
     };
   };
@@ -116,7 +22,8 @@ export interface paths {
           author_id?: parameters['rowFilter.decks.author_id'];
           visibility?: parameters['rowFilter.decks.visibility'];
           title?: parameters['rowFilter.decks.title'];
-          summary?: parameters['rowFilter.decks.summary'];
+          description?: parameters['rowFilter.decks.description'];
+          cards?: parameters['rowFilter.decks.cards'];
           created_at?: parameters['rowFilter.decks.created_at'];
           updated_at?: parameters['rowFilter.decks.updated_at'];
           /** Filtering Columns */
@@ -173,7 +80,8 @@ export interface paths {
           author_id?: parameters['rowFilter.decks.author_id'];
           visibility?: parameters['rowFilter.decks.visibility'];
           title?: parameters['rowFilter.decks.title'];
-          summary?: parameters['rowFilter.decks.summary'];
+          description?: parameters['rowFilter.decks.description'];
+          cards?: parameters['rowFilter.decks.cards'];
           created_at?: parameters['rowFilter.decks.created_at'];
           updated_at?: parameters['rowFilter.decks.updated_at'];
         };
@@ -194,7 +102,8 @@ export interface paths {
           author_id?: parameters['rowFilter.decks.author_id'];
           visibility?: parameters['rowFilter.decks.visibility'];
           title?: parameters['rowFilter.decks.title'];
-          summary?: parameters['rowFilter.decks.summary'];
+          description?: parameters['rowFilter.decks.description'];
+          cards?: parameters['rowFilter.decks.cards'];
           created_at?: parameters['rowFilter.decks.created_at'];
           updated_at?: parameters['rowFilter.decks.updated_at'];
         };
@@ -396,24 +305,29 @@ export interface paths {
       };
     };
   };
+  '/rpc/create_deck': {
+    post: {
+      parameters: {
+        body: {
+          args: {
+            data: string;
+            deck_id: string;
+          };
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters['preferParams'];
+        };
+      };
+      responses: {
+        /** OK */
+        200: unknown;
+      };
+    };
+  };
 }
 
 export interface definitions {
-  cards: {
-    /**
-     * Note:
-     * This is a Primary Key.<pk/>
-     * This is a Foreign Key to `decks.id`.<fk table='decks' column='id'/>
-     */
-    deck_id: string;
-    /**
-     * Note:
-     * This is a Primary Key.<pk/>
-     */
-    position: number;
-    front_text: string;
-    back_text: string;
-  };
   decks: {
     /**
      * Note:
@@ -427,7 +341,8 @@ export interface definitions {
     author_id: string;
     visibility: 'public' | 'private';
     title: string;
-    summary: string;
+    description: string;
+    cards: Card[];
     created_at: string;
     updated_at: string;
   };
@@ -468,19 +383,14 @@ export interface parameters {
   offset: string;
   /** Limiting and Pagination */
   limit: string;
-  /** cards */
-  'body.cards': definitions['cards'];
-  'rowFilter.cards.deck_id': string;
-  'rowFilter.cards.position': string;
-  'rowFilter.cards.front_text': string;
-  'rowFilter.cards.back_text': string;
   /** decks */
   'body.decks': definitions['decks'];
   'rowFilter.decks.id': string;
   'rowFilter.decks.author_id': string;
   'rowFilter.decks.visibility': string;
   'rowFilter.decks.title': string;
-  'rowFilter.decks.summary': string;
+  'rowFilter.decks.description': string;
+  'rowFilter.decks.cards': string;
   'rowFilter.decks.created_at': string;
   'rowFilter.decks.updated_at': string;
   /** profiles */
