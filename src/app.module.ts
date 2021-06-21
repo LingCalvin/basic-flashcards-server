@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { SupabaseModule } from './supabase/supabase.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ProfilesModule } from './profiles/profiles.module';
+import { DecksModule } from './decks/decks.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ProfilesModule } from './profiles/profiles.module';
     SupabaseModule,
     ScheduleModule.forRoot(),
     ProfilesModule,
+    DecksModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,13 +1,13 @@
 import { Module, ModuleMetadata } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { AnonymousAuthGuard } from './guards/anonymous-auth.guard';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { CleanupService } from './cleanup.service';
 import { SupabaseModule } from '../supabase/supabase.module';
 import { ConfigModule } from '@nestjs/config';
+import { AnonymousStrategy } from './strategies/anonymous.strategy';
 
 export const metadata: ModuleMetadata = {
   imports: [
@@ -17,7 +17,7 @@ export const metadata: ModuleMetadata = {
   ],
   exports: [AuthService],
   providers: [
-    AnonymousAuthGuard,
+    AnonymousStrategy,
     AuthService,
     CleanupService,
     JwtStrategy,
