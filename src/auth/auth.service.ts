@@ -3,10 +3,18 @@ import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { SupabaseClient } from '../supabase/classes/supabase-client';
 import { definitions } from '../supabase/interfaces/supabase';
+import { ProfilesService } from '../profiles/profiles.service';
+import {
+  adjectives,
+  animals,
+  colors,
+  uniqueNamesGenerator,
+} from 'unique-names-generator';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private profiles: ProfilesService,
     @Inject(SupabaseClient) private supabase: SupabaseClient,
     private jwt: JwtService,
   ) {}
@@ -15,8 +23,21 @@ export class AuthService {
     return this.supabase.anon.auth.signIn({ email, password });
   }
 
-  signUp(email: string, password: string) {
-    return this.supabase.anon.auth.signUp({ email, password });
+  async signUp(email: string, password: string) {
+    const signUpRes = await this.supabase.anon.auth.signUp({ email, password });
+    if (signUpRes.error === null) {
+      const randomUsername = uniqueNamesGenerator({
+        style: 'capital',
+        dictionaries: [adjectives, colors, animals],
+        separator: ' ',
+      });
+      await this.profiles.update(
+        signUpRes.user?.id ?? '',
+        { username: randomUsername },
+        process.env.SUPABASE_SECRET_KEY ?? '',
+      );
+    }
+    return signUpRes;
   }
 
   async signOut(accessToken: string) {
@@ -56,4 +77,8 @@ export class AuthService {
       .throwOnError();
     return (matchingRecords.data?.length ?? 1) > 0;
   }
+
+  // async verifyEmail(token: string) {
+  //   this.supabase.anon.auth.
+  // }
 }

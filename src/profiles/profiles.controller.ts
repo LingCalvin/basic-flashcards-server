@@ -1,13 +1,11 @@
 import {
   Body,
-  ConflictException,
   Controller,
   ForbiddenException,
   Get,
   InternalServerErrorException,
   NotFoundException,
   Param,
-  Post,
   Put,
   Query,
   Req,
@@ -24,7 +22,6 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request';
 import { stripUpdatedAt } from '../common/utils/metadata.utils';
-import { CreateProfileDto } from './dto/create-profile.dto';
 import { FindAllProfilesDto } from './dto/find-all-profiles.dto';
 import { ProfileIdDto } from './dto/profile-id.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -34,49 +31,6 @@ import { ProfilesService } from './profiles.service';
 @Controller('profiles')
 export class ProfilesController {
   constructor(private profiles: ProfilesService) {}
-
-  @Post()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Create a profile' })
-  @ApiBearerAuth()
-  @ApiCookieAuth()
-  @ApiResponse({
-    status: 201,
-    description: 'The profile was successfully created.',
-  })
-  @ApiResponse({
-    status: 403,
-    description:
-      'The client does not have permission to create a profile for the specified user.',
-  })
-  @ApiResponse({
-    status: 409,
-    description:
-      'The attempt to create a profile failed. The user specified already has a profile.',
-  })
-  async create(
-    @Req() req: AuthenticatedRequest,
-    @Body() dto: CreateProfileDto,
-  ) {
-    if (req.user.sub !== dto.userId) {
-      throw new UnauthorizedException();
-    }
-
-    const { data, status } = await this.profiles.create(
-      dto,
-      req.user.accessToken,
-    );
-
-    if (status === 201 && data !== null) {
-      return stripUpdatedAt(data[0]);
-    }
-
-    if (status === 409) {
-      throw new ConflictException();
-    }
-
-    throw new InternalServerErrorException();
-  }
 
   @Get()
   @ApiOperation({ summary: 'Retrieve a list of profiles' })

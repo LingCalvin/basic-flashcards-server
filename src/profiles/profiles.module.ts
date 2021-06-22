@@ -5,6 +5,7 @@ import { SupabaseModule } from '../supabase/supabase.module';
 
 export const metadata: ModuleMetadata = {
   imports: [SupabaseModule],
+  exports: [ProfilesService],
   providers: [ProfilesService],
   controllers: [ProfilesController],
 };

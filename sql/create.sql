@@ -1,29 +1,30 @@
-CREATE EXTENSION IF NOT EXISTS citext;
-CREATE EXTENSION IF NOT EXISTS moddatetime;
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 -- Profiles
 CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users,
   username CITEXT NOT NULL UNIQUE,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 
   constraint username_length CHECK (char_length(username) >= 3)
 );
 
-CREATE TRIGGER update_timestamp BEFORE UPDATE ON profiles
-FOR EACH ROW EXECUTE PROCEDURE moddatetime(updated_at);
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, username)
+  VALUES (new.id, new.id);
+  RETURN new;
+END;
+$$ language plpgsql SECURITY DEFINER;
 
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY profile_select_policy ON profiles
+CREATE POLICY profile_select_public on profiles
   FOR SELECT
   USING (true);
-CREATE POLICY profile_insert_policy ON profiles
-  FOR INSERT
-  WITH CHECK (auth.uid() = id);
-CREATE POLICY profile_update_policy ON profiles
+CREATE POLICY profile_update_own ON profiles
   FOR UPDATE
   USING (auth.uid() = id);
 

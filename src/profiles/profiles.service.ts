@@ -17,7 +17,9 @@ export class ProfilesService {
   }
 
   create({ userId: id, ...rest }: CreateProfileDto, token: string) {
-    return this.queryAsAnon(token).insert({ id, ...rest });
+    return this.queryAsAnon(token)
+      .insert({ id, ...rest })
+      .select('id, username');
   }
 
   async findAll({
@@ -30,7 +32,7 @@ export class ProfilesService {
     orderBy,
   }: FindAllProfilesDto) {
     const query = this.queryAsAnon()
-      .select(undefined, { count: 'exact' })
+      .select('id, username', { count: 'exact' })
       .order(orderBy, { ascending: sort === 'asc' })
       .range(offset, offset + limit - 1);
 
