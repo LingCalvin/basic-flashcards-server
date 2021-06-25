@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import * as camelCaseKeys from 'camelcase-keys';
 import { escapeLike } from '../common/utils/sql.utils';
 import { SupabaseClient } from '../supabase/classes/supabase-client';
 import { definitions } from '../supabase/interfaces/supabase';
@@ -17,18 +18,19 @@ export class DecksService {
     >('decks');
   }
 
-  create(
+  async create(
     { authorId: author_id, cards, ...rest }: CreateDeckDto,
     token: string,
   ) {
-    return this.queryAsAnon(token).insert({
+    const query = this.queryAsAnon(token).insert({
       author_id,
       cards: cards.map(convertToCard),
       ...rest,
     });
+    return camelCaseKeys(await query, { deep: true });
   }
 
-  findAll(dto: FindAllDecksDto, token?: string) {
+  async findAll(dto: FindAllDecksDto, token?: string) {
     const query = this.queryAsAnon(token)
       .select()
       .order(dto.orderBy, { ascending: dto.sort === 'asc' })
@@ -61,22 +63,25 @@ export class DecksService {
     } else if (dto.titleStartsWith) {
       query.like('title', dto.titleStartsWith);
     }
-    return query;
+    return camelCaseKeys(await query, { deep: true });
   }
 
-  findOne(id: string, token?: string) {
-    return this.queryAsAnon(token).select().match({ id });
+  async findOne(id: string, token?: string) {
+    const query = this.queryAsAnon(token).select().match({ id });
+    return camelCaseKeys(await query, { deep: true });
   }
 
-  update(id: string, token: string, { cards, ...rest }: UpdateDeckDto) {
-    return this.queryAsAnon(token).update({
+  async update(id: string, token: string, { cards, ...rest }: UpdateDeckDto) {
+    const query = this.queryAsAnon(token).update({
       id,
       cards: cards.map(convertToCard),
       ...rest,
     });
+    return camelCaseKeys(await query, { deep: true });
   }
 
-  delete(id: string, token: string) {
-    return this.queryAsAnon(token).delete().match({ id });
+  async delete(id: string, token: string) {
+    const query = this.queryAsAnon(token).delete().match({ id });
+    return camelCaseKeys(await query, { deep: true });
   }
 }

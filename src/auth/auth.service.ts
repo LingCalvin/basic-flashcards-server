@@ -10,6 +10,7 @@ import {
   colors,
   uniqueNamesGenerator,
 } from 'unique-names-generator';
+import * as camelCaseKeys from 'camelcase-keys';
 
 @Injectable()
 export class AuthService {
@@ -45,28 +46,38 @@ export class AuthService {
     if (error) {
       return { error };
     }
-    return this.supabase.asUser(accessToken).auth.signOut();
+    return camelCaseKeys(
+      await this.supabase.asUser(accessToken).auth.signOut(),
+      { deep: true },
+    );
   }
 
-  resetPasswordByEmail(email: string) {
-    return this.supabase.anon.auth.api.resetPasswordForEmail(email);
+  async resetPasswordByEmail(email: string) {
+    return camelCaseKeys(
+      await this.supabase.anon.auth.api.resetPasswordForEmail(email),
+      { deep: true },
+    );
   }
 
   async resetPassword(token: string, newPassword: string) {
     await this.revokeToken(token);
-    return this.supabase.anon.auth.api.updateUser(token, {
-      password: newPassword,
-    });
+    return camelCaseKeys(
+      await this.supabase.anon.auth.api.updateUser(token, {
+        password: newPassword,
+      }),
+      { deep: true },
+    );
   }
 
   async revokeToken(token: string) {
     const { exp } = this.jwt.decode(token) as { exp: number };
-    return this.supabase.anon
+    const query = this.supabase.anon
       .from<definitions['revoked_tokens']>('revoked_tokens')
       .insert({
         token: await argon2.hash(token, { type: argon2.argon2id }),
         expiration: new Date(exp * 1000).toISOString(),
       });
+    return camelCaseKeys(await query, { deep: true });
   }
 
   async isTokenRevoked(token: string) {
@@ -77,8 +88,4 @@ export class AuthService {
       .throwOnError();
     return (matchingRecords.data?.length ?? 1) > 0;
   }
-
-  // async verifyEmail(token: string) {
-  //   this.supabase.anon.auth.
-  // }
 }

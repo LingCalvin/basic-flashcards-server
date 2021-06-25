@@ -30,7 +30,6 @@ import { CreateDeckDto } from './dto/create-deck.dto';
 import { DeckIdDto } from './dto/deck-id.dto';
 import { FindAllDecksDto } from './dto/find-all-decks.dto';
 import { UpdateDeckDto } from './dto/update-deck.dto';
-import * as camelCaseKeys from 'camelcase-keys';
 
 @ApiTags('decks')
 @Controller('decks')
@@ -62,7 +61,7 @@ export class DecksController {
   ) {
     const { data, status } = await this.decks.create(dto, accessToken);
     if (status === 201) {
-      return camelCaseKeys(data?.[0] ?? {}, { deep: true });
+      return data?.[0];
     }
     if (status === 403) {
       throw new ForbiddenException();
@@ -90,7 +89,7 @@ export class DecksController {
     );
 
     if (status === 200) {
-      return camelCaseKeys(data ?? {}, { deep: true });
+      return data;
     }
 
     throw new InternalServerErrorException();
@@ -121,7 +120,7 @@ export class DecksController {
     if (!data?.length) {
       throw new NotFoundException();
     }
-    return camelCaseKeys(data[0], { deep: true });
+    return data[0];
   }
 
   @Put(':id')
@@ -154,7 +153,7 @@ export class DecksController {
     );
 
     if (status === 200 && data !== null) {
-      return camelCaseKeys(data[0], { deep: true });
+      return data[0];
     }
     if (status === 403) {
       throw new ForbiddenException();
@@ -187,7 +186,7 @@ export class DecksController {
     const { data, status } = await this.decks.delete(id, req.user.accessToken);
 
     if (status === 200 && data?.length) {
-      return camelCaseKeys(data[0], { deep: true });
+      return data[0];
     }
     if (status === 200) {
       throw new NotFoundException();

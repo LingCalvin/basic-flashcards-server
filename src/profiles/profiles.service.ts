@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import * as camelCaseKeys from 'camelcase-keys';
 import { escapeLike } from '../common/utils/sql.utils';
 import { SupabaseClient } from '../supabase/classes/supabase-client';
 import { definitions } from '../supabase/interfaces/supabase';
@@ -16,10 +17,11 @@ export class ProfilesService {
     >('profiles');
   }
 
-  create({ userId: id, ...rest }: CreateProfileDto, token: string) {
-    return this.queryAsAnon(token)
+  async create({ userId: id, ...rest }: CreateProfileDto, token: string) {
+    const query = this.queryAsAnon(token)
       .insert({ id, ...rest })
       .select('id, username');
+    return camelCaseKeys(await query, { deep: true });
   }
 
   async findAll({
@@ -52,18 +54,24 @@ export class ProfilesService {
       query.like('username', `${escapeLike(usernameStartsWith)}%`);
     }
 
-    return query;
+    return camelCaseKeys(await query, { deep: true });
   }
 
-  findOne(id: string) {
-    return this.queryAsAnon().select(undefined).match({ id });
+  async findOne(id: string) {
+    const query = this.queryAsAnon().select(undefined).match({ id });
+    return camelCaseKeys(await query, { deep: true });
   }
 
-  update(id: string, dto: UpdateProfileDto, token: string) {
-    return this.queryAsAnon(token).update({ id, ...dto });
+  async update(id: string, dto: UpdateProfileDto, token: string) {
+    const query = this.queryAsAnon(token).update({
+      id,
+      ...dto,
+    });
+    return camelCaseKeys(await query, { deep: true });
   }
 
-  delete(id: string, token: string) {
-    return this.queryAsAnon(token).delete().match({ id });
+  async delete(id: string, token: string) {
+    const query = this.queryAsAnon(token).delete().match({ id });
+    return camelCaseKeys(await query, { deep: true });
   }
 }
