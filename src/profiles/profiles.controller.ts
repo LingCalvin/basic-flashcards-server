@@ -21,7 +21,6 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request';
-import { stripUpdatedAt } from '../common/utils/metadata.utils';
 import { FindAllProfilesDto } from './dto/find-all-profiles.dto';
 import { ProfileIdDto } from './dto/profile-id.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -44,7 +43,7 @@ export class ProfilesController {
     if (error) {
       throw new InternalServerErrorException();
     }
-    return { data: data?.map((profile) => stripUpdatedAt(profile)), count };
+    return { data, count };
   }
 
   @Get(':id')
@@ -65,7 +64,7 @@ export class ProfilesController {
     if (!data?.length) {
       throw new NotFoundException();
     }
-    return stripUpdatedAt(data[0]);
+    return data[0];
   }
 
   @Put(':id')
@@ -102,7 +101,7 @@ export class ProfilesController {
     );
 
     if (status === 200 && data !== null) {
-      return stripUpdatedAt(data[0]);
+      return data[0];
     }
     if (status === 403) {
       throw new ForbiddenException();
