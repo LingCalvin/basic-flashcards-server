@@ -70,12 +70,15 @@ export class AuthService {
   }
 
   async revokeToken(token: string) {
-    const { exp } = this.jwt.decode(token) as { exp: number };
+    const decoded = this.jwt.decode(token) as { exp: number } | null;
+    if (decoded === null) {
+      return { data: decoded, error: { status: 401 } };
+    }
     const query = this.supabase.anon
       .from<definitions['revoked_tokens']>('revoked_tokens')
       .insert({
         token: await argon2.hash(token, { type: argon2.argon2id }),
-        expiration: new Date(exp * 1000).toISOString(),
+        expiration: new Date(decoded.exp * 1000).toISOString(),
       });
     return camelCaseKeys(await query, { deep: true });
   }

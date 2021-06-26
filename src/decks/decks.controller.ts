@@ -5,6 +5,7 @@ import {
   Delete,
   ForbiddenException,
   Get,
+  HttpStatus,
   InternalServerErrorException,
   NotFoundException,
   Param,
@@ -15,21 +16,27 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
-  ApiBearerAuth,
-  ApiCookieAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
   ApiOperation,
-  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import OptionalJwtAuthGuard from '../auth/guards/optional-jwt-auth.guard';
 import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request';
 import { OptionallyAuthenticatedRequest } from '../auth/interfaces/optionally-authenticated-request';
+import { ApiAuthenticatedEndpoint } from '../common/decorators/api-authenticated-endpoint.decorator';
+import { ApiErrorResponse } from '../common/decorators/api-error-response.decorator';
+import { ApiFailedValidationResponse } from '../common/decorators/api-failed-validation-response.decorator';
+import { ApiInsufficientPermissionsResponse } from '../common/decorators/api-insufficient-permissions-response.decorator';
+import { ApiResourceNotFoundResponse } from '../common/decorators/api-resource-not-found.decorator';
 import { DecksService } from './decks.service';
 import { CreateDeckDto } from './dto/create-deck.dto';
 import { DeckIdDto } from './dto/deck-id.dto';
 import { FindAllDecksDto } from './dto/find-all-decks.dto';
 import { UpdateDeckDto } from './dto/update-deck.dto';
+import { DeckResponse } from './responses/deck.response';
+import { FindAllDecksResponse } from './responses/find-all-decks.response';
 
 @ApiTags('decks')
 @Controller('decks')
@@ -39,34 +46,33 @@ export class DecksController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Create a deck' })
-  @ApiBearerAuth()
-  @ApiCookieAuth()
-  @ApiResponse({
-    status: 201,
+  @ApiAuthenticatedEndpoint()
+  @ApiCreatedResponse({
     description: 'The deck was successfully created.',
+    type: DeckResponse,
   })
-  @ApiResponse({
-    status: 403,
+  @ApiFailedValidationResponse()
+  @ApiInsufficientPermissionsResponse({
     description:
       'The client does not have permission to create a deck for the specified author.',
   })
-  @ApiResponse({
-    status: 409,
+  @ApiErrorResponse({
+    status: HttpStatus.CONFLICT,
     description:
       'The attempt to create a deck has failed. A deck with the specified ID already exists.',
   })
   async create(
     @Req() { user: { accessToken } }: AuthenticatedRequest,
     @Body() dto: CreateDeckDto,
-  ) {
+  ): Promise<DeckResponse> {
     const { data, status } = await this.decks.create(dto, accessToken);
-    if (status === 201) {
-      return data?.[0];
+    if (status === HttpStatus.CREATED && data !== null) {
+      return data[0];
     }
-    if (status === 403) {
+    if (status === HttpStatus.FORBIDDEN) {
       throw new ForbiddenException();
     }
-    if (status === 409) {
+    if (status === HttpStatus.CONFLICT) {
       throw new ConflictException();
     }
     throw new InternalServerErrorException();
@@ -75,21 +81,22 @@ export class DecksController {
   @Get()
   @UseGuards(OptionalJwtAuthGuard)
   @ApiOperation({ summary: 'Retrieve a list of decks' })
-  @ApiResponse({
-    status: 200,
+  @ApiOkResponse({
     description: 'The query was successful.',
+    type: FindAllDecksResponse,
   })
+  @ApiFailedValidationResponse()
   async findAll(
     @Req() req: OptionallyAuthenticatedRequest,
     @Query() dto: FindAllDecksDto,
-  ) {
-    const { data, status } = await this.decks.findAll(
+  ): Promise<FindAllDecksResponse> {
+    const { count, data, status } = await this.decks.findAll(
       dto,
       req.user?.accessToken,
     );
 
-    if (status === 200) {
-      return data;
+    if (status === HttpStatus.OK && data !== null && count !== null) {
+      return { data, count };
     }
 
     throw new InternalServerErrorException();
@@ -98,18 +105,16 @@ export class DecksController {
   @Get(':id')
   @UseGuards(OptionalJwtAuthGuard)
   @ApiOperation({ summary: 'Retrieve a deck' })
-  @ApiResponse({
-    status: 200,
+  @ApiOkResponse({
     description: 'The deck specified was found',
+    type: DeckResponse,
   })
-  @ApiResponse({
-    status: 404,
-    description: 'No deck with the given ID was found.',
-  })
+  @ApiFailedValidationResponse()
+  @ApiResourceNotFoundResponse('Deck')
   async findOne(
     @Req() req: OptionallyAuthenticatedRequest,
     @Param() { id }: DeckIdDto,
-  ) {
+  ): Promise<DeckResponse> {
     const { error, data } = await this.decks.findOne(
       id,
       req?.user?.accessToken,
@@ -126,39 +131,32 @@ export class DecksController {
   @Put(':id')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Update a deck' })
-  @ApiBearerAuth()
-  @ApiCookieAuth()
-  @ApiResponse({
-    status: 200,
+  @ApiAuthenticatedEndpoint()
+  @ApiOkResponse({
     description: 'The deck was successfully updated.',
+    type: DeckResponse,
   })
-  @ApiResponse({
-    status: 403,
-    description: `The attempt to modify the specified deck has failed due to insufficient permissions.`,
-  })
-  @ApiResponse({
-    status: 404,
-    description:
-      'The attempt to modify the specified deck has failed because it could not be found',
-  })
+  @ApiFailedValidationResponse()
+  @ApiResourceNotFoundResponse()
+  @ApiInsufficientPermissionsResponse()
   async update(
     @Req() req: AuthenticatedRequest,
     @Param() { id }: DeckIdDto,
     @Body() dto: UpdateDeckDto,
-  ) {
+  ): Promise<DeckResponse> {
     const { data, status } = await this.decks.update(
       id,
       req.user.accessToken,
       dto,
     );
 
-    if (status === 200 && data !== null) {
+    if (status === HttpStatus.OK && data !== null) {
       return data[0];
     }
-    if (status === 403) {
+    if (status === HttpStatus.FORBIDDEN) {
       throw new ForbiddenException();
     }
-    if (status === 404) {
+    if (status === HttpStatus.NOT_FOUND) {
       throw new NotFoundException();
     }
     throw new InternalServerErrorException();
@@ -167,31 +165,27 @@ export class DecksController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Delete a deck' })
-  @ApiBearerAuth()
-  @ApiCookieAuth()
-  @ApiResponse({
-    status: 200,
+  @ApiAuthenticatedEndpoint()
+  @ApiOkResponse({
     description: 'The deck was successfully deleted.',
+    type: DeckResponse,
   })
-  @ApiResponse({
-    status: 403,
-    description:
-      'The attempt to delete the specified deck has failed due to insufficient permissions.',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'The specified deck could not be found.',
-  })
-  async delete(@Req() req: AuthenticatedRequest, @Param() { id }: DeckIdDto) {
+  @ApiFailedValidationResponse()
+  @ApiInsufficientPermissionsResponse()
+  @ApiResourceNotFoundResponse('Deck')
+  async delete(
+    @Req() req: AuthenticatedRequest,
+    @Param() { id }: DeckIdDto,
+  ): Promise<DeckResponse> {
     const { data, status } = await this.decks.delete(id, req.user.accessToken);
 
-    if (status === 200 && data?.length) {
+    if (status === HttpStatus.OK && data?.length) {
       return data[0];
     }
-    if (status === 200) {
+    if (status === HttpStatus.OK) {
       throw new NotFoundException();
     }
-    if (status === 403) {
+    if (status === HttpStatus.FORBIDDEN) {
       throw new ForbiddenException();
     }
     throw new InternalServerErrorException();
