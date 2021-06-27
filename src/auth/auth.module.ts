@@ -8,11 +8,13 @@ import { CleanupService } from './cleanup.service';
 import { SupabaseModule } from '../supabase/supabase.module';
 import { ConfigModule } from '@nestjs/config';
 import { AnonymousStrategy } from './strategies/anonymous.strategy';
+import { ProfilesModule } from '../profiles/profiles.module';
 
 export const metadata: ModuleMetadata = {
   imports: [
     ConfigModule,
     JwtModule.register({ secret: process.env.JWT_SECRET }),
+    ProfilesModule,
     SupabaseModule,
   ],
   exports: [AuthService],

@@ -128,7 +128,6 @@ export interface paths {
         query: {
           id?: parameters['rowFilter.profiles.id'];
           username?: parameters['rowFilter.profiles.username'];
-          updated_at?: parameters['rowFilter.profiles.updated_at'];
           /** Filtering Columns */
           select?: parameters['select'];
           /** Ordering */
@@ -181,7 +180,6 @@ export interface paths {
         query: {
           id?: parameters['rowFilter.profiles.id'];
           username?: parameters['rowFilter.profiles.username'];
-          updated_at?: parameters['rowFilter.profiles.updated_at'];
         };
         header: {
           /** Preference */
@@ -198,7 +196,6 @@ export interface paths {
         query: {
           id?: parameters['rowFilter.profiles.id'];
           username?: parameters['rowFilter.profiles.username'];
-          updated_at?: parameters['rowFilter.profiles.updated_at'];
         };
         body: {
           /** profiles */
@@ -325,6 +322,23 @@ export interface paths {
       };
     };
   };
+  '/rpc/handle_new_user': {
+    post: {
+      parameters: {
+        body: {
+          args: { [key: string]: any };
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters['preferParams'];
+        };
+      };
+      responses: {
+        /** OK */
+        200: unknown;
+      };
+    };
+  };
 }
 
 export interface definitions {
@@ -354,7 +368,6 @@ export interface definitions {
      */
     id: string;
     username: string;
-    updated_at: string;
   };
   revoked_tokens: {
     token: string;
@@ -397,7 +410,6 @@ export interface parameters {
   'body.profiles': definitions['profiles'];
   'rowFilter.profiles.id': string;
   'rowFilter.profiles.username': string;
-  'rowFilter.profiles.updated_at': string;
   /** revoked_tokens */
   'body.revoked_tokens': definitions['revoked_tokens'];
   'rowFilter.revoked_tokens.token': string;

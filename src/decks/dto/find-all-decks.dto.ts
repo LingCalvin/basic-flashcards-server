@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   IsBoolean,
@@ -13,7 +13,7 @@ import { PaginationDto } from '../../common/dto/pagination.dto';
 export class FindAllDecksDto extends PaginationDto {
   @IsOptional()
   @IsIn(['title'])
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional()
   orderBy: 'title' = 'title';
   /**
    * The ID or IDs that the results must have.
@@ -45,6 +45,6 @@ export class FindAllDecksDto extends PaginationDto {
   @IsOptional()
   @IsBoolean()
   @Transform(({ value }) => !['0', 0, 'false', false].includes(value))
-  @ApiProperty({ type: 'boolean', required: false })
+  @ApiPropertyOptional({ type: 'boolean' })
   caseSensitive = false;
 }
