@@ -6,6 +6,9 @@ export interface ApiErrorResponseOptions {
   description?: ApiResponseOptions['description'];
 }
 
+/**
+ * Annotates an endpoint with a generic error response.
+ */
 export function ApiErrorResponse(options?: ApiErrorResponseOptions) {
   return applyDecorators(
     ApiResponse({

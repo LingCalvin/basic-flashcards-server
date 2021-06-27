@@ -1,6 +1,9 @@
 import { applyDecorators, HttpStatus } from '@nestjs/common';
 import { ApiBadRequestResponse } from '@nestjs/swagger';
 
+/**
+ * Annotates an endpoint with a response for when input validation fails.
+ */
 export function ApiFailedValidationResponse() {
   return applyDecorators(
     ApiBadRequestResponse({

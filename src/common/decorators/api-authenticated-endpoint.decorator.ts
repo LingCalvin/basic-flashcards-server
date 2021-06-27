@@ -5,6 +5,9 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
+/**
+ * Annotates that an endpoint requires authentication.
+ */
 export function ApiAuthenticatedEndpoint() {
   return applyDecorators(
     ApiBearerAuth(),

@@ -1,5 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+/**
+ * A generic paginated results response.
+ */
 export class PaginatedResponse {
   /**
    * How many results in total match the given filter.

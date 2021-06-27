@@ -1,6 +1,10 @@
 import { applyDecorators, HttpStatus } from '@nestjs/common';
 import { ApiForbiddenResponse } from '@nestjs/swagger';
 
+/**
+ * Annotates an endpoint with a response for when a client attempts to perform
+ * an action for which they do not have sufficient privileges.
+ */
 export function ApiInsufficientPermissionsResponse({
   description = 'The client does not have permission to perform the requested action on this resource.',
 } = {}) {

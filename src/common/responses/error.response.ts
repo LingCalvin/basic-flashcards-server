@@ -1,5 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+/**
+ * A generic error response.
+ */
 export class ErrorResponse {
   /**
    * The HTTP response status code.

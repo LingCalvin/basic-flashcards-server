@@ -1,6 +1,9 @@
 import { applyDecorators, HttpStatus } from '@nestjs/common';
 import { ApiNotFoundResponse } from '@nestjs/swagger';
 
+/**
+ * Annotates an endpoint with a response for when a resource could not be found.
+ */
 export function ApiResourceNotFoundResponse(resource = 'Resource') {
   return applyDecorators(
     ApiNotFoundResponse({
