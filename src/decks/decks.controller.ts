@@ -29,6 +29,7 @@ import { ApiAuthenticatedEndpoint } from '../common/decorators/api-authenticated
 import { ApiErrorResponse } from '../common/decorators/api-error-response.decorator';
 import { ApiFailedValidationResponse } from '../common/decorators/api-failed-validation-response.decorator';
 import { ApiInsufficientPermissionsResponse } from '../common/decorators/api-insufficient-permissions-response.decorator';
+import { ApiOptionallyAuthenticatedEndpoint } from '../common/decorators/api-optionally-authenticated-endpoint.decorator';
 import { ApiResourceNotFoundResponse } from '../common/decorators/api-resource-not-found.decorator';
 import { DecksService } from './decks.service';
 import { CreateDeckDto } from './dto/create-deck.dto';
@@ -80,6 +81,7 @@ export class DecksController {
 
   @Get()
   @UseGuards(OptionalJwtAuthGuard)
+  @ApiOptionallyAuthenticatedEndpoint()
   @ApiOperation({ summary: 'Retrieve a list of decks' })
   @ApiOkResponse({
     description: 'The query was successful.',
@@ -104,6 +106,7 @@ export class DecksController {
 
   @Get(':id')
   @UseGuards(OptionalJwtAuthGuard)
+  @ApiOptionallyAuthenticatedEndpoint()
   @ApiOperation({ summary: 'Retrieve a deck' })
   @ApiOkResponse({
     description: 'The deck specified was found',

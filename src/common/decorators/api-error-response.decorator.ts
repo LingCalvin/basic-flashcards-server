@@ -1,7 +1,12 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiResponse, ApiResponseOptions } from '@nestjs/swagger';
 
-export function ApiErrorResponse(options?: ApiResponseOptions) {
+export interface ApiErrorResponseOptions {
+  status: number;
+  description?: ApiResponseOptions['description'];
+}
+
+export function ApiErrorResponse(options?: ApiErrorResponseOptions) {
   return applyDecorators(
     ApiResponse({
       status: options?.status,

@@ -17,9 +17,10 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Response } from 'express';
+import { ApiAuthenticatedEndpoint } from '../common/decorators/api-authenticated-endpoint.decorator';
+import { ApiErrorResponse } from '../common/decorators/api-error-response.decorator';
 import { ApiFailedValidationResponse } from '../common/decorators/api-failed-validation-response.decorator';
 import { MessageResponse } from '../common/responses/message.response';
 import { AuthService } from './auth.service';
@@ -48,6 +49,7 @@ export class AuthController {
     description: `The client's attempt to authenticate was unsuccessful.`,
     schema: {
       type: 'object',
+      required: ['status', 'message'],
       properties: {
         status: {
           description: 'The HTTP response status code.',
@@ -96,6 +98,7 @@ export class AuthController {
   @Post('sign-out')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
+  @ApiAuthenticatedEndpoint()
   @ApiOperation({ summary: 'Sign out of an account' })
   @ApiOkResponse({
     description: 'The client has successfully signed out.',
@@ -138,19 +141,9 @@ export class AuthController {
     type: MessageResponse,
   })
   @ApiFailedValidationResponse()
-  @ApiUnauthorizedResponse({
+  @ApiErrorResponse({
+    status: HttpStatus.UNAUTHORIZED,
     description: 'The provided token was invalid.',
-    schema: {
-      type: 'object',
-      properties: {
-        statusCode: { enum: [HttpStatus.UNAUTHORIZED] },
-        message: {
-          description:
-            'A message describing what is wrong with the provided token.',
-          type: 'string',
-        },
-      },
-    },
   })
   async resetPassword(
     @Body() { token, newPassword }: ResetPasswordDto,

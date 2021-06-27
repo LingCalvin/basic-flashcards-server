@@ -18,7 +18,7 @@ export class DeckResponse {
 
   description: string;
 
-  @ApiProperty({ enum: allowedVisibilities, required: false })
+  @ApiProperty({ enum: allowedVisibilities })
   visibility: definitions['decks']['visibility'] = 'private';
 
   cards: CreateCardDto[];
