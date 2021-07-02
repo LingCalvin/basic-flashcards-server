@@ -17,7 +17,7 @@ export function ApiInsufficientPermissionsResponse({
         properties: {
           statusCode: {
             description: 'The HTTP response status code',
-            enum: [HttpStatus.UNAUTHORIZED],
+            enum: [HttpStatus.FORBIDDEN],
           },
           message: {
             description:
